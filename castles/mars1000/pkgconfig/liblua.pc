@@ -1,0 +1,10 @@
+prefix=/opt/castles/SDK_MARS1000
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: liblua
+Description: Lua
+Version: 5.3.2
+Libs: -L${libdir} -llua
+Cflags: -I${includedir}/lua

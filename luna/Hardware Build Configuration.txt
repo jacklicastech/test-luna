@@ -1,0 +1,19 @@
+Code and Go is a single source code application. Applications for multiple device types are build from the same source code.
+
+To build the application for MP200 (Wi-Fi configuration), change the HardwareDef.h file to:
+
+#ifndef HARDWAREDEF_H
+#define	HARDWAREDEF_H
+#define POS_DEVICE      "MP200"
+#define UP_ARROW        'U'
+#define DOWN_ARROW      'D'
+#endif
+
+To build the application for VEGA3000 (Wi-Fi configuration), change the HardwareDef.h file to:
+
+#ifndef HARDWAREDEF_H
+#define	HARDWAREDEF_H
+#define POS_DEVICE      "VEGA3000"
+#define UP_ARROW        'P'
+#define DOWN_ARROW      'Q'
+#endif

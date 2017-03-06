@@ -1,0 +1,11 @@
+set -e
+make
+mkdir -p dist/bin
+mkdir -p dist/plugins/plugins
+mkdir -p dist/bindings/bindings
+cp luna dist/bin/luna
+cp -L .libs/*.so dist/plugins/plugins
+mv dist/plugins/plugins/liblua* dist/bindings/bindings
+echo 'luna     > dist/bin/luna'
+echo 'plugins  > dist/plugins'
+echo 'bindings > dist/bindings'

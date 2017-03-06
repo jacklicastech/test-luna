@@ -1,0 +1,432 @@
+NOTE: All request URIs documented below must be preceded by a version string,
+such as /v1 or /latest. The /latest version is always mapped to the most
+recent API version. This can sometimes be useful in development but is NOT
+recommended in production apps, because future updates may cause the /latest
+API version to change, which can break client applications unexpectedly.
+
+For example, to perform a sale transaction, the full URI might be:
+
+    POST /v1/transactions/:id.json
+
+
+NOTE: If any request fails, it will return with a 4xx or 5xx HTTP status code
+and an error object in the following form:
+
+    {
+      "error": {
+        "code": the error code,
+        "description": a human-readable error message
+      }
+    }
+
+
+NOTE: Requests marked "Authenticated", below, require a username and password
+to be supplied via HTTP Basic Auth. The username is "mp200user" and the
+default password is "1379". At this time, the username cannot be changed.
+
+
+PUT    /password.json   (Authenticated)
+       Changes the password. When interfacing with users in your mobile
+       application, it is recommended to always prompt for the password twice
+       before sending this request, in order to prevent mistakes.
+
+       Request:
+         {
+           "password": "new-password"
+         }
+
+       Response:
+         HTTP Status: 204 No Content
+
+
+GET    /settings.json
+       Returns the settings for the Code and Go application.
+
+       Response:
+         HTTP Status: 200 OK
+         {
+           "client_verification": array that is empty, or contains "cvv",
+                                  "avs", or both
+           "sleep": number of seconds of inactivity before application enters
+                    power-saving mode, or false if power-saving mode is
+                    disabled.
+           "backlight": {
+             "enabled": true/false: whether to use the keypad backlight when
+                        key entry is taking place.
+             "duration": number of seconds before backlight is turned off, if
+                         backlight is enabled, when no keys are pressed; or
+                         false if the backlight should stay on forever.
+           }
+           "wifi": {
+             "ssid": the SSID of the WiFi access point
+             "password": true if a password is required and/or in use, false
+                         otherwise
+           }
+           "language": the language to use
+           "device_id": the device ID
+           "tpp_id": the TPP ID
+           "terminal_id": the terminal ID
+           "merchant_id": the merchant ID
+           "merchant_category_code": the merchant category code
+           "group_id": the group ID
+           "currency_code": the currency code
+           "submit_urls": an array of submit URLs
+           "service_discovery_urls": an array of service discovery URLs
+         }
+
+
+PUT    /settings.json    (Authenticated)
+       Changes the settings for the Code and Go application.
+
+       Request:
+         {
+           "client_verification": array that is empty, or contains "cvv",
+                                  "avs", or both
+           "sleep": number of seconds of inactivity before application enters
+                    power-saving mode, or false if power-saving mode is
+                    disabled.
+           "backlight": {
+             "enabled": true/false: whether to use the keypad backlight when
+                        key entry is taking place.
+             "duration": number of seconds before backlight is turned off, if
+                         backlight is enabled, when no keys are pressed; or
+                         false if the backlight should stay on forever.
+           }
+           "wifi": {
+             "ssid": the SSID of the WiFi access point
+             "password": the WiFi password, if any. Can be omitted or false if
+                         no password is to be used.
+           }
+           "language": the language to use
+           "device_id": the device ID
+           "tpp_id": the TPP ID
+           "terminal_id": the terminal ID
+           "merchant_id": the merchant ID
+           "merchant_category_code": the merchant category code
+           "group_id": the group ID
+           "currency_code": the currency code
+           "submit_urls": an array of submit URLs
+           "service_discovery_urls": an array of service discovery URLs
+         }
+
+       Response:
+         HTTP Status: 204 No Content
+
+
+GET    /transactions.json
+       Returns a list of the the current batch of locally stored transactions.
+
+       Response:
+         HTTP Status: 200 OK
+         [
+           {
+             "id": the given transaction ID echoed back.
+             "type": "sale", "refund", "balance-inquiry" or "verification".
+             "approved": true, false, "in-progress" or "partial".
+             "requested_amount": the amount that was requested in cents
+             "authorized_amount": the amount that was authorized in cents.
+                                  If "approved" is "partial", this may not
+                                  be the full amount.
+             "authorization_code": authorization code.
+             "card": {
+               "avs": the AVS result, typically a single alphabetic character.
+               "cvv": the CVV result.
+               "type": the card type
+               "number": a masked card number with the last 4 digits exposed
+             }
+           }
+         ]
+
+
+DELETE /transactions.json   (Authenticated)
+       Deletes all of the locally stored transaction batch information.
+       Note: this differs from voiding a particular transaction, as is
+       outlined below, in that it immediately clears all local data without
+       voiding anything. Use only if directed to by a support specialist.
+
+       Response:
+         HTTP Status: 204 No Content
+
+
+POST   /transactions/:id.json    (Sometimes Authenticated; See Description)
+       Perform a sale, refund, balance inquiry or card verification.
+       Because some clients may make it difficult or impossible to prevent an
+       HTTP timeout, you can perform a subsequent GET with the same
+       transaction ID to check for the results.
+
+       If the "amount" parameter is omitted, a balance inquiry is performed.
+       If the "amount" parameter is 0, a card verification is performed.
+       If the "amount" parameter is a positive number, a sale is performed.
+       If the "amount" parameter is a negative number, a refund is performed.
+       
+       Note: if a refund is performed, authentication is required.
+
+       Request:
+         {
+           "amount" - integer amount of transaction in cents. Optional.
+         }
+
+       Response:
+         HTTP Status: 202 Accepted
+         {
+           "id": the given transaction ID echoed back.
+           "type": "sale", "refund", "balance-inquiry" or "verification".
+           "approved": true, false, "in-progress" or "partial".
+           "requested_amount": the amount that was requested in cents
+           "authorized_amount": the amount that was authorized in cents.
+                                If "approved" is "partial", this may not
+                                be the full amount.
+           "authorization_code": authorization code.
+           "card": {
+             "avs": the AVS result, typically a single alphabetic character.
+             "cvv": the CVV result.
+             "type": the card type
+             "number": a masked card number with the last 4 digits exposed
+           }
+         }
+
+
+GET    /transactions/:id.json
+       Retrieve the result of some previously executed transaction.
+
+       Response:
+         HTTP Status: 200 OK
+         {
+           "id": the given transaction ID echoed back.
+           "type": "sale", "refund", "balance-inquiry" or "verification".
+           "approved": true, false, "in-progress" or "partial".
+           "requested_amount": the amount that was requested in cents
+           "authorized_amount": the amount that was authorized in cents.
+                                If "approved" is "partial", this may not
+                                be the full amount.
+           "authorization_code": authorization code.
+           "card": {
+             "avs": the AVS result, typically a single alphabetic character.
+             "cvv": the CVV result.
+             "type": the card type
+             "number": a masked card number with the last 4 digits exposed
+           }
+         }
+
+
+DELETE /transactions/:id.json   (Authenticated)
+       Perform a full or partial reversal of the referenced transaction.
+
+       If the amount is specified, that amount will be reversed and the
+       transaction will be considered a partial reversal.
+
+       If the amount is omitted, the entire transaction will be reversed.
+
+       Request:
+         {
+           "amount": amount - integer amount of reversal in cents. Optional.
+         }
+
+       Response:
+         HTTP Status: 200 OK
+         {
+           "id": the given transaction ID echoed back.
+           "type": "void" or "partial-void".
+           "approved": true, false, "in-progress" or "partial".
+           "requested_amount": the amount that was requested in cents
+           "authorized_amount": the amount that was authorized in cents.
+                                If "approved" is "partial", this may not
+                                be the full amount.
+           "authorization_code": authorization code.
+           "card": {
+             "avs": the AVS result, typically a single alphabetic character.
+             "cvv": the CVV result.
+             "type": the card type
+             "number": a masked card number with the last 4 digits exposed
+           }
+         }
+
+
+GET    /battery.json
+
+       Returns the battery status of the device. Returns a 404 Not Found
+       HTTP status code if this device has no battery.
+
+       Response:
+         HTTP Status: 200 OK or 404 Not Found
+         {
+           "charging": true or false
+           "level": a number between 0 and 100 representing charge level
+           "charge_threshold": a number between 0 and 90 representing the
+                               required battery charge threshold at which
+                               charging will automatically begin
+         }
+
+
+PUT    /battery.json   (Authenticated)
+       Allows manipulation of the battery.
+
+       Request:
+         {
+           "force": true or false. Whether to begin forcing the battery to
+                    charge. If omitted, its charging state will not be
+                    changed. If false, and battery charging has already been
+                    forced, charging will not be stopped.
+           "charge_threshold": a number between 0 and 90 representing the
+                               required battery charge threshold at which
+                               charging will automatically begin
+         }
+
+       Response:
+         HTTP Status: 204 No Content
+
+
+GET    /time.json
+       Retrieves the system date and time.
+
+       Response:
+         {
+           "date": the system date in YYYY-MM-DD format
+           "time": the 24-hour system time in HH:MM:SS format
+           "ticks": the number of system ticks. Each tick counts as 10ms.
+         }
+
+
+PUT    /time.json   (Authenticated)
+       Sets the system date and time.
+
+       Request:
+         {
+           "date": the system date in YYYY-MM-DD format
+           "time": the 24-hour system time in HH:MM:SS format
+         }
+
+       Response:
+         HTTP Status: 204 No Content
+
+
+GET    /device.json
+       Gets information about the device
+
+       Response:
+         HTTP Status: 200 OK
+         {
+           "serial_number": the device serial number
+           "cpu_serial_number": the CPU serial number
+           "cradle_attached": true if the device is attached to a cradle,
+                              false otherwise
+           "memory": {
+             "disk": {
+               "used": amount of used non-volatile disk storage
+               "total": total amount of non-volatile disk storage
+             },
+
+             "ram": {
+               "used": amount of used RAM
+               "total": total amount of RAM
+             }
+           },
+
+           "power_source": The current power source. "DC", "cradle" or
+                           "battery"
+
+           "display": {
+             "width": the horizontal screen resolution
+             "height": the vertical screen resolution
+             "color": the color depth in bits: 2 (mono), 10 (262K colors) or
+                      24 (16M colors)
+             "touch": the touchpad type: "none", "resistor" or "capacitor"
+           }
+         }
+
+
+GET    /capabilities.json
+       Gets information about the capabilities of this device
+ 
+       Response:
+         HTTP Status: 200 OK
+         {
+           "portable": true/false: whether this device is portable or
+                       stationary
+           "pci": true/false: whether this device is PCI or non-PCI
+           "usb": true/false: whether this device supports USB
+           "modem": true/false: whether this device supports a modem
+           "ethernet": true/false: whether this device supports ethernet
+           "wifi": true/false: whether this device supports WiFi
+           "bluetooth": true/false: whether this device supports Bluetooth
+           "gprs": true/false: whether this device supports GPRS
+           "contactless": true/false: whether this device supports contactless
+           "zigbee": true/false: whether this device supports zigbee
+         }
+
+
+PUT    /keyboard.json   (Authenticated)
+       Sets preferences in regard to the device keyboard
+
+       Request:
+         {
+           "sound": true (to enable without change), false (to disable), or {
+             "frequency": frequency of keyboard sound in hertz
+             "duration": duration of keyboard sound in tens of milliseconds
+           }
+
+           "buffer": a string of characters to be placed into the key buffer,
+                     which can be used to simulate user input
+         }
+
+       Response:
+         HTTP Status: 204 No Content
+
+
+GET    /smart-card.json
+       Gets status of the smart card reader.
+
+       Response:
+         HTTP Status: 200 OK
+         {
+           "inserted": true/false: whether ICC is inserted
+           "active": true/false: whether the reader is active
+         }
+
+
+GET    /wifi.json
+       Gets information about the wifi.
+
+       Response:
+         HTTP Status: 200 OK
+         {
+           "mac_address": the wireless MAC address
+           "ssid": the wifi SSID
+           "mode":
+           "frequency":
+           "quality":
+           "signal_lv":
+           "noise_lv":
+           "password_protected": true/false
+           "status": one of "access_point_connected", "scanning",
+                     "access_point_connecting", "connecting",
+                     "sending", "receiving", "disconnecting",
+                     "access_point_disconnecting"
+           "config": {
+             "dhcp": true/false: enable/disable DHCP
+             "auto": true/false: whether to automatically connect
+             "ipaddress": the IP address when DHCP is disabled
+             "netmask": the network mask when DHCP is disabled
+             "gateway": the gateway when DHCP is disabled
+             "dns": the DNS IP when DHCP is disabled
+             "mac": the MAC address
+           }
+         }
+
+
+PUT    /wifi.json   (Authenticated)
+       Sets wifi configuration parameters
+
+       Request:
+         {
+           "dhcp": true/false: enable/disable DHCP
+           "auto": true/false: whether to automatically connect
+           "ipaddress": the IP address when DHCP is disabled
+           "netmask": the network mask when DHCP is disabled
+           "gateway": the gateway when DHCP is disabled
+           "dns": the DNS IP when DHCP is disabled
+           "mac": the MAC address
+         }
+
+       Response:
+         HTTP Status: 204 No Content

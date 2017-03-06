@@ -1,0 +1,13 @@
+Package: luna
+Version: 1.0-1
+Section: base
+Priority: optional
+Architecture: amd64
+Depends: 
+Maintainer: Colin MacKenzie IV <sinisterchipmunk@gmail.com>
+Description: Appilee Luna payment application
+ Payment application, which contains a command line interface, and the
+ ability to execute arbitrary scripts in its environment. This is meant
+ to be used as a testbed prior to loading these scripts onto a terminal
+ running the Luna application.
+

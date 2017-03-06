@@ -1,0 +1,5 @@
+libsodium 18
+liburiparser 1
+libzmq 5
+libczmq 3
+liblua 5
