@@ -49,10 +49,12 @@ else
 fi
 mv luna.tgz $manuf/$target/luna.tgz
 
-if [ ! -f $manuf/base/toolchain.tgz ]
-then
-  aws s3 cp s3://appilee/sdk/$manuf/toolchain.tgz $manuf/base/toolchain.tgz
-fi
+# if [ ! -f $manuf/base/toolchain.tgz ]
+# then
+#   aws s3 cp s3://appilee/sdk/$manuf/toolchain.tgz $manuf/base/toolchain.tgz
+# fi
+
+
 if [ ! -f $manuf/base/capgen.tgz ]
 then
   aws s3 cp s3://appilee/sdk/$manuf/capgen.tgz $manuf/base/capgen.tgz
