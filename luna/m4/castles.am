@@ -1,0 +1,11 @@
+INC_DIR = -I $(LO_SDK_TOP_DIR)/kernel/linux-obj/include
+INC_DIR += -I $(LO_SDK_TOP_DIR)/kernel/linux-obj/linux/usr/include
+INC_DIR += -I $(LO_SDK_TOP_DIR)/kernel/linux-obj/linux/usr/include
+LIB_DIR1 = -L$(LO_SDK_TOP_DIR)/kernel/linux-obj/lib
+AM_CFLAGS += -O2 -Wall -mcpu=arm1136j-s -msoft-float -Wfloat-equal -fomit-frame-pointer
+AM_CFLAGS += -Wno-pointer-sign -fno-dollars-in-identifiers -fsigned-char $(INC_DIR)
+AM_CFLAGS += -I ../include
+AP_EXT_SHARED_LIB = -lpthread -ldl
+AP_EXT_SHARED_LIB += -Wl,-rpath-link=$(LO_SDK_TOP_DIR)/lib -L$(LO_SDK_TOP_DIR)/lib -L$(LO_SDK_TOP_DIR)/internal_lib
+TOOLCHAIN = $(TOOLCHAIN_BINDIR)/../
+AM_LDFLAGS = $(AP_EXT_SHARED_LIB)
