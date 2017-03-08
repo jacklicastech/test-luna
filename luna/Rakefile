@@ -3,7 +3,7 @@ task :update_index do
   require 'bundler/setup'
   require 'json'
   require 'aws-sdk'
-  etag = Aws::S3::Object.new('appilee', File.join(ENV['PREFIX'], ENV['KEY'])).etag
+  etag = Aws::S3::Object.new('castlestw', File.join(ENV['PREFIX'], ENV['KEY'])).etag
   etag = etag[1...-1] if etag[/^".*?"$/]
   json = JSON.parse File.read("index.json"), symbolize_names: true
 
