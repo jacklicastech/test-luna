@@ -51,18 +51,18 @@ mv luna.tgz $manuf/$target/luna.tgz
 
 if [ ! -f $manuf/base/toolchain.tgz ]
 then
-  aws s3 cp s3://appilee/sdk/$manuf/toolchain.tgz $manuf/base/toolchain.tgz 
+  aws s3 cp s3://castlestw/sdk/toolchain.tgz $manuf/base/toolchain.tgz 
 fi
 if [ ! -f $manuf/base/capgen.tgz ]
 then
-  aws s3 cp s3://appilee/sdk/$manuf/capgen.tgz $manuf/base/capgen.tgz
+  aws s3 cp s3://castlestw/sdk/capgen.tgz $manuf/base/capgen.tgz
 fi
 docker build -t $manuf-base $manuf/base
 
 
 if [ ! -f $manuf/$target/sdk.tgz ]
 then
-  aws s3 cp s3://appilee/sdk/$manuf/$target.tgz $manuf/$target/sdk.tgz
+  aws s3 cp s3://castlestw/sdk/sdk.tgz $manuf/$target/sdk.tgz
 fi
 
 mkdir -p $artifacts_dir
